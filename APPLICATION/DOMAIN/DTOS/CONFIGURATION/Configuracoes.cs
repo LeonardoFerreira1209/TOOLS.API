@@ -1,0 +1,49 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace APPLICATION.DOMAIN.DTOS.CONFIGURATION;
+
+/// <summary>
+/// Classe responsavel por receber os dados do Appsettings.
+/// </summary>
+public class AppSettings
+{
+    public ConnectionStrings ConnectionStrings { get; set; }
+    public SwaggerInfo SwaggerInfo { get; set; }
+    public Configuracaoes Configuracaoes { get; set; }
+    public UrlBase UrlBase { get; set; }
+    public RetryPolicy RetryPolicy { get; set; }
+}
+
+public class RetryPolicy
+{
+    public string RetryOn { get; set; }
+    public int RetryCount { get; set; }
+    public int RetryEachSecond { get; set; }
+}
+
+public class ConnectionStrings
+{
+    public string BaseDados { get; set; }
+}
+
+public class SwaggerInfo
+{
+    public string ApiDescription { get; set; }
+    public string ApiVersion { get; set; }
+    public string UriMyGit { get; set; }
+}
+
+public class Configuracaoes
+{
+    public int TimeOutDefault { get; set; }
+    public int NumeroThreadsConsumer { get; set; }
+    public string TopicoExemploName { get; set; }
+    public string SubscriptionExemploName { get; set; }
+    public int TempoReagendamentoMinutos { get; set; }
+    public int QuantidadeMaximaDeRetentativas { get; set; }
+}
+
+public class UrlBase
+{
+    public string Cep { get; set; }
+}

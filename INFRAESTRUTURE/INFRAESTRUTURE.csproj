@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="JOBS\" />
+    <Folder Include="SERVICEBUS\" />
+    <Folder Include="REPOSITORY\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="2.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\APPLICATION\APPLICATION.csproj" />
+    <ProjectReference Include="..\DOMAIN\DOMAIN.csproj" />
+  </ItemGroup>
+
+</Project>
