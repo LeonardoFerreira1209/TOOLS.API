@@ -1,4 +1,6 @@
 ﻿using APPLICATION.DOMAIN.DTOS.ENTITIES;
+using APPLICATION.DOMAIN.DTOS.ENTITIES.USER;
+using APPLICATION.DOMAIN.DTOS.REQUEST.USER;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
 using APPLICATION.DOMAIN.ENUM;
 using APPLICATION.ENUMS;
@@ -84,6 +86,7 @@ public static class Extensions
         return erros;
     }
 
+    #region CEP
     /// <summary>
     /// Converte um IEnumerable de CepEntity para uma lista de CepResponse.
     /// </summary>
@@ -106,5 +109,34 @@ public static class Extensions
 
         }).ToList();
     }
+    #endregion
+
+    #region USER
+    /// <summary>
+    /// Método que converte um CreateRequest para UserIdentity.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public static UserEntity ToEntity(this CreateRequest request)
+    {
+        return new UserEntity
+        {
+            Email = request.Email,
+            PasswordHash = request.PasswordHash,
+            AccessFailedCount = request.AccessFailedCount,
+            ConcurrencyStamp = request.ConcurrencyStamp,
+            LockoutEnabled = request.LockoutEnabled,
+            LockoutEnd = request.LockoutEnd,
+            EmailConfirmed = request.EmailConfirmed,
+            NormalizedEmail = request.NormalizedEmail,
+            PhoneNumber = request.PhoneNumber,
+            NormalizedUserName = request.NormalizedEmail,
+            PhoneNumberConfirmed = request.PhoneNumberConfirmed,
+            SecurityStamp = request.SecurityStamp,
+            TwoFactorEnabled = request.TwoFactorEnabled,
+            UserName = request.UserName,
+        };
+    }
+    #endregion
 }
 

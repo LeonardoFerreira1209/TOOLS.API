@@ -1,5 +1,6 @@
 ﻿using APPLICATION.DOMAIN.DTOS.CONFIGURATION;
 using APPLICATION.DOMAIN.DTOS.ENTITIES;
+using APPLICATION.DOMAIN.DTOS.ENTITIES.USER;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -28,6 +29,10 @@ public class Contexto : DbContext
     public DbSet<CepEntity> Ceps { get; set; }
     #endregion
 
+    #region U
+    public DbSet<UserEntity> Users { get; set; }
+    #endregion
+
     #endregion
 
     /// <summary>
@@ -37,9 +42,12 @@ public class Contexto : DbContext
     #region Métodos override
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(_appSettings.Value.ConnectionStrings.BaseDados);
+        optionsBuilder.UseSqlServer(_appSettings.Value.ConnectionStrings.BaseDados); base.OnConfiguring(optionsBuilder);
+    }
 
-        base.OnConfiguring(optionsBuilder);
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<UserEntity>().ToTable("AspNetUsers").HasKey(t => t.Id); base.OnModelCreating(builder);
     }
     #endregion
 }

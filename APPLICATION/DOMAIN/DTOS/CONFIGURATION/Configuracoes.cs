@@ -9,9 +9,11 @@ public class AppSettings
 {
     public ConnectionStrings ConnectionStrings { get; set; }
     public SwaggerInfo SwaggerInfo { get; set; }
-    public Configuracaoes Configuracaoes { get; set; }
+    public Configuracoes Configuracoes { get; set; }
     public UrlBase UrlBase { get; set; }
     public RetryPolicy RetryPolicy { get; set; }
+    public Auth Auth { get; set; }
+    public Email Email { get; set; }
 }
 
 public class RetryPolicy
@@ -33,7 +35,7 @@ public class SwaggerInfo
     public string UriMyGit { get; set; }
 }
 
-public class Configuracaoes
+public class Configuracoes
 {
     public int TimeOutDefault { get; set; }
     public int NumeroThreadsConsumer { get; set; }
@@ -46,4 +48,26 @@ public class Configuracaoes
 public class UrlBase
 {
     public string Cep { get; set; }
+}
+
+public class Auth
+{
+    public string ValidIssuer { get; set; }
+    public string ValidAudience { get; set; }
+    public string SecurityKey { get; set; }
+    public int ExpiresIn { get; set; }
+    public Password Password { get; set; }
+}
+
+public class Password
+{
+    public int RequiredLength { get; set; }
+}
+
+public class Email
+{
+    public string From { get; set; }
+    public string SmtpServer { get; set; }
+    public int Port { get; set; }
+    public string Password { get; set; }
 }

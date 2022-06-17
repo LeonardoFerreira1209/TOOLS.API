@@ -27,11 +27,14 @@ try
     builder.Services
         .Configure<AppSettings>(configurations).AddSingleton<AppSettings>()
         .AddHttpContextAccessor()
+        .AddEndpointsApiExplorer()
         .AddOptions()
         .ConfigureLanguage()
         .ConfigureContexto(configurations)
+        .ConfigureIdentityServer(configurations)
+        .ConfigureAuthentication(configurations)
         .ConfigureSwagger(configurations)
-        .ConfigureDependencies()
+        .ConfigureDependencies(configurations)
         .ConfigureRefit(configurations)
         .ConfigureGraphQL()
         .ConfigureHealthChecks(configurations)
@@ -56,10 +59,15 @@ try
         .UseStaticFiles()
         .UseHttpsRedirection()
         .UseHttpsRedirection()
+        .UseRouting()
+        .UseAuthentication()
         .UseAuthorization();
 
     // Chamando a configuração do GraphQL.
     applicationbuilder.MapGraphQL();
+
+    // Chamando as configurações de Minimal APIS.
+    applicationbuilder.UseMinimalAPI(configurations);
 
     Log.Information($"[LOG INFORMATION] - Inicializando aplicação [TOOLS.API] - [FINALIZADO]\n");
 
