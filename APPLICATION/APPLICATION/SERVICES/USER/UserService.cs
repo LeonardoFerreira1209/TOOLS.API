@@ -108,6 +108,20 @@ namespace APPLICATION.APPLICATION.SERVICES.USER
         }
 
         /// <summary>
+        /// Método responsavel por gerar um token de autorização e enviar por e-mail.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        private async Task ConfirmeUserForEmail(UserEntity user)
+        {
+            var EmailCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            var codifyEmailCode = HttpUtility.UrlEncode(EmailCode);
+
+            _emailFacade.Invite(new[] { user.Email }, "Link de ativação do usuário", user.Id, codifyEmailCode);
+        }
+
+        /// <summary>
         /// Método responsavel por ativar um novo usuário.
         /// </summary>
         /// <param name="request"></param>
@@ -134,18 +148,5 @@ namespace APPLICATION.APPLICATION.SERVICES.USER
             }
         }
 
-        /// <summary>
-        /// Método responsavel por gerar um token de autorização e enviar por e-mail.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private async Task ConfirmeUserForEmail(UserEntity user)
-        {
-            var EmailCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            var codifyEmailCode = HttpUtility.UrlEncode(EmailCode);
-
-            _emailFacade.Invite(new[] { user.Email }, "Link de ativação do usuário", user.Id, codifyEmailCode);
-        }
     }
 }
