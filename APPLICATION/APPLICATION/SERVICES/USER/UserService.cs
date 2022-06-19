@@ -88,7 +88,7 @@ namespace APPLICATION.APPLICATION.SERVICES.USER
             {
                 var identityUser = request.ToEntity();
 
-                var response = await _userManager.CreateAsync(identityUser, request.PasswordHash);
+                var response = await _userManager.CreateAsync(identityUser);
 
                 if (response.Succeeded)
                 {
@@ -132,7 +132,7 @@ namespace APPLICATION.APPLICATION.SERVICES.USER
 
             try
             {
-                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id.Equals(request.UsuarioId));
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UsuarioId);
 
                 var response = await _userManager.ConfirmEmailAsync(user, request.Codigo);
 

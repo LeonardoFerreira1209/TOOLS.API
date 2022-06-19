@@ -13,7 +13,6 @@ public class AppSettings
     public UrlBase UrlBase { get; set; }
     public RetryPolicy RetryPolicy { get; set; }
     public Auth Auth { get; set; }
-    public Token Token { get; set; }
     public Email Email { get; set; }
 }
 
@@ -71,13 +70,4 @@ public class Email
     public string SmtpServer { get; set; }
     public int Port { get; set; }
     public string Password { get; set; }
-}
-
-public class Token
-{
-    public string Audience { get; set; }
-    public string Issuer { get; set; }
-    public string Secret { get; set; }
-    public int Minutes { get; set; }
-    public int ExpiresIn { get; set; }
 }
