@@ -33,6 +33,7 @@ try
         .ConfigureContexto(configurations)
         .ConfigureIdentityServer(configurations)
         .ConfigureAuthentication(configurations)
+        .ConfigureAuthorization()
         .ConfigureSwagger(configurations)
         .ConfigureDependencies(configurations)
         .ConfigureRefit(configurations)

@@ -17,5 +17,5 @@ public class ActivateUserRequest
     /// Id do usuário que será ativado.
     /// </summary>
     [Required]
-    public Guid UsuarioId { get; set; }
+    public int UsuarioId { get; set; }
 }

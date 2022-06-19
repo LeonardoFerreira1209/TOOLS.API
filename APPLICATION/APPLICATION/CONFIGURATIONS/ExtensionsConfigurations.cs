@@ -6,7 +6,6 @@ using APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.USER;
 using APPLICATION.DOMAIN.DTOS.CONFIGURATION.AUTH.TOKEN;
-using APPLICATION.DOMAIN.DTOS.ENTITIES.USER;
 using APPLICATION.DOMAIN.DTOS.REQUEST.USER;
 using APPLICATION.DOMAIN.UTILS;
 using APPLICATION.INFRAESTRUTURE.CONTEXTO;
@@ -20,7 +19,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,7 +93,7 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
         public static IServiceCollection ConfigureContexto(this IServiceCollection services, IConfiguration configurations)
         {
             services
-                .AddDbContext<Contexto>(options => options.UseSqlServer(configurations.GetValue<string>("ConnectionStrings:BaseDados")));
+                .AddDbContext<Contexto>(options => options.UseLazyLoadingProxies().UseSqlServer(configurations.GetValue<string>("ConnectionStrings:BaseDados")));
 
             return services;
         }
@@ -108,10 +106,12 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
         public static IServiceCollection ConfigureIdentityServer(this IServiceCollection services, IConfiguration configuration)
         {
             services
-                .AddDefaultIdentity<UserEntity>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<Contexto>().AddDefaultTokenProviders();
+                .AddIdentity<IdentityUser<Guid>, IdentityRole<Guid>>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<Contexto>().AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
+                options.Password.RequireDigit = true;
+
                 options.Password.RequireDigit = options.Password.RequireUppercase = true;
 
                 options.Password.RequiredLength = configuration.GetValue<int>("Auth:Password:RequiredLength");
@@ -127,7 +127,13 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
         /// <returns></returns>
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configurations)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            services.AddAuthentication(options =>
+            {
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
             {
 
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
@@ -137,9 +143,10 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
 
-                    ValidIssuer = configurations.GetValue<string>("Auth:ValidIssuer"),
-                    ValidAudience = configurations.GetValue<string>("Auth:ValidAudience"),
-                    IssuerSigningKey = JwtSecurityKey.Create(configurations.GetValue<string>("Auth:SecurityKey"))
+                    ValidIssuer = configurations.GetValue<string>("Token:Issuer"),
+                    ValidAudience = configurations.GetValue<string>("Token:Audience"),
+
+                    IssuerSigningKey = JwtSecurityKey.Create(configurations.GetValue<string>("Token:Secret"))
                 };
 
                 options.Events = new JwtBearerEvents
@@ -160,6 +167,18 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
                 };
 
             });
+
+            return services;
+        }
+
+        /// <summary>
+        /// Configuração da autorização do sistema.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection ConfigureAuthorization(this IServiceCollection services)
+        {
+            services.AddAuthorization(auth => { auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder().AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build()); });
 
             return services;
         }
@@ -335,8 +354,8 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
         public static WebApplication UseMinimalAPI(this WebApplication application, IConfiguration configurations)
         {
             #region User's
-            application.MapPost("/security/create", 
-            [AllowAnonymous][SwaggerOperation(Summary = "Criar uauário.", Description = "Método responsavel por criar usuário")]
+            application.MapPost("/security/create",
+            [AllowAnonymous][SwaggerOperation(Summary = "Criar usuário.", Description = "Método responsavel por criar usuário")]
             //[ProducesResponseType(typeof(ApiResponse<TokenJWT>), StatusCodes.Status200OK)]
             //[ProducesResponseType(typeof(ApiResponse<TokenJWT>), StatusCodes.Status400BadRequest)] 
             //[ProducesResponseType(typeof(ApiResponse<TokenJWT>), StatusCodes.Status500InternalServerError)]
@@ -350,7 +369,7 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
                 }
             });
 
-            application.MapPost("/security/authentication", 
+            application.MapPost("/security/authentication",
             [AllowAnonymous][SwaggerOperation(Summary = "Autenticação do usuário", Description = "Método responsável por Autenticar usuário")]
             //[ProducesResponseType(typeof(ApiResponse<TokenJWT>), StatusCodes.Status200OK)]
             //[ProducesResponseType(typeof(ApiResponse<TokenJWT>), StatusCodes.Status400BadRequest)]
