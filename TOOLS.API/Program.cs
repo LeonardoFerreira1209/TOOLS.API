@@ -31,8 +31,8 @@ try
         .AddOptions()
         .ConfigureLanguage()
         .ConfigureContexto(configurations)
-        .ConfigureIdentityServer(configurations)
         .ConfigureAuthentication(configurations)
+        .ConfigureAuthorization()
         .ConfigureSwagger(configurations)
         .ConfigureDependencies(configurations)
         .ConfigureRefit(configurations)
@@ -65,9 +65,6 @@ try
 
     // Chamando a configuração do GraphQL.
     applicationbuilder.MapGraphQL();
-
-    // Chamando as configurações de Minimal APIS.
-    applicationbuilder.UseMinimalAPI(configurations);
 
     Log.Information($"[LOG INFORMATION] - Inicializando aplicação [TOOLS.API] - [FINALIZADO]\n");
 
