@@ -17,4 +17,8 @@
     <ProjectReference Include="..\APPLICATION\APPLICATION.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
+  </ItemGroup>
+
 </Project>
