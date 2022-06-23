@@ -8,5 +8,5 @@ public class CepRequest
     /// <summary>
     /// Código de endereçamento postal. 
     /// </summary>
-    public long Cep { get; set; } 
+    public long Cep { get; set; }
 }

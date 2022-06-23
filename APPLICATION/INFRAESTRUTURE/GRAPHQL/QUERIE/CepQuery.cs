@@ -37,7 +37,9 @@ public class CepQuery : BaseQuery
     /// </summary>
     /// <param name="cepService"></param>
     /// <returns></returns>
-    [UseProjection] [UseFiltering] [UseSorting]
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
     public async Task<ICollection<CepResponse>> All([Service] ICepService cepService)
     {
         Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepQuery)} - METHOD {nameof(All)}\n");

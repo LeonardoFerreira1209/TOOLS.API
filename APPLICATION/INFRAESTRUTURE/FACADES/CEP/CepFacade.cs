@@ -31,7 +31,7 @@ public class CepFacade : ICepFacade
         {
             var (sucesso, response) = await ResponseCep(request);
 
-            if(sucesso)
+            if (sucesso)
             {
                 return new ApiResponse<CepResponse>(sucesso, response);
             }
@@ -44,7 +44,7 @@ public class CepFacade : ICepFacade
         {
             Log.Error("[LOG ERROR]", exception, exception.Message);
 
-            return  new ApiResponse<CepResponse>(false, new List<DadosNotificacao> { new DadosNotificacao(DOMAIN.ENUM.StatusCodes.ServerErrorInternalServerError, exception.Message) });
+            return new ApiResponse<CepResponse>(false, new List<DadosNotificacao> { new DadosNotificacao(DOMAIN.ENUM.StatusCodes.ServerErrorInternalServerError, exception.Message) });
         }
     }
 
@@ -56,7 +56,7 @@ public class CepFacade : ICepFacade
         {
             var response = await _cepExternal.Get(request.Cep);
 
-            if(response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
 
@@ -71,7 +71,7 @@ public class CepFacade : ICepFacade
                 return (false, null);
             }
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             Log.Error("[LOG ERROR]", exception.Message);
 

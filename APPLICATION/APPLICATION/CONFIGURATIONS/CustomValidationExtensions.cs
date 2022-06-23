@@ -17,7 +17,8 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
 
             return new ApiResponse<CepResponse>
             {
-                Sucesso = false, Notificacoes = _notificacoes.ToList()
+                Sucesso = false,
+                Notificacoes = _notificacoes.ToList()
             };
         }
 
