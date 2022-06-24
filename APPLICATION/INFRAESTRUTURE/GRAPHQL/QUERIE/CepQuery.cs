@@ -3,6 +3,7 @@ using APPLICATION.DOMAIN.DTOS.REQUEST;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
 using APPLICATION.DOMAIN.UTILS;
 using APPLICATION.DOMAIN.VALIDATORS;
+using Microsoft.AspNetCore.Cors;
 using Serilog;
 
 namespace APPLICATION.INFRAESTRUTURE.GRAPHQL.QUERIE;
@@ -10,6 +11,7 @@ namespace APPLICATION.INFRAESTRUTURE.GRAPHQL.QUERIE;
 /// <summary>
 /// Método de query de cep
 /// </summary>
+[EnableCors("CorsPolicy")]
 public class CepQuery : BaseQuery
 {
     /// <summary>

@@ -53,15 +53,17 @@ try
 
     // Chamada das connfigurações do WebApplication Build.
     applicationbuilder
-        .UseSwaggerConfigurations(configurations)
-        .ConfigureHealthChecks()
-        .UseDefaultFiles()
+        .UseHttpsRedirection()
         .UseStaticFiles()
-        .UseHttpsRedirection()
-        .UseHttpsRedirection()
+        .UseDefaultFiles()
         .UseRouting()
-        .UseCors()
-        .UseAuthentication();
+        .UseCors("CorsPolicy")
+        .UseAuthorization()
+        .ConfigureHealthChecks()
+        .UseSwaggerConfigurations(configurations)
+        .UseRequestLocalization()
+        .UseCookiePolicy()
+        .UseResponseCaching();
 
     // Chamando a configuração do GraphQL.
     applicationbuilder.MapGraphQL();

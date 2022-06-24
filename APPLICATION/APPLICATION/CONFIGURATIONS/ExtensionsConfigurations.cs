@@ -252,7 +252,10 @@ public static class ExtensionsConfigurations
     {
         return services.AddCors(options =>
         {
-            options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            options.AddPolicy("CorsPolicy", policy =>
+            {
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            });
         });
     }
 
