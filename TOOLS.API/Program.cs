@@ -60,8 +60,8 @@ try
         .UseHttpsRedirection()
         .UseHttpsRedirection()
         .UseRouting()
-        .UseAuthentication()
-        .UseAuthorization();
+        .UseCors()
+        .UseAuthentication();
 
     // Chamando a configuração do GraphQL.
     applicationbuilder.MapGraphQL();

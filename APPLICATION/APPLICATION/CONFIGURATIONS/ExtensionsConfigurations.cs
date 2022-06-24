@@ -304,12 +304,7 @@ public static class ExtensionsConfigurations
         });
 
         application
-            .UseSwaggerUI(swagger =>
-            {
-                swagger.SwaggerEndpoint($"/swagger/{apiVersion}/swagger.json", $"{apiVersion}");
-
-                //swagger.InjectStylesheet("/swagger-custom/swagger-custom-styles.css");
-            });
+            .UseSwaggerUI(swagger => { swagger.SwaggerEndpoint($"/swagger/{apiVersion}/swagger.json", $"{apiVersion}"); });
 
         application
             .UseMvcWithDefaultRoute();
