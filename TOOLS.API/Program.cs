@@ -57,6 +57,7 @@ try
         .UseStaticFiles()
         .UseDefaultFiles()
         .UseRouting()
+        .UseCors("CorsPolicy")
         .UseAuthorization()
         .ConfigureHealthChecks()
         .UseSwaggerConfigurations(configurations)
