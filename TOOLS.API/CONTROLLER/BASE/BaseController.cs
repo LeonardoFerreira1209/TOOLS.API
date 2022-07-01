@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-namespace TOOLS.USER.API.CONTROLLER.BASE
+namespace TOOLS.API.CONTROLLER.BASE
 {
     [Route("api/[controller]")] [ApiController]
     public class BaseController : ControllerBase
