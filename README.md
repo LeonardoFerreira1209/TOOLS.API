@@ -3,4 +3,4 @@ Projeto com o intuito de implementar várias tecnologias atuais, com o objetivo 
 
 Implementado TALK.IO para controle de chats, access & more.
 
-[![Build and deploy ASP.Net Core app to an Azure Web App](https://github.com/LeonardoFerreira1209/TOOLS.API/actions/workflows/deployment.yml/badge.svg)](https://github.com/LeonardoFerreira1209/TOOLS.API/actions/workflows/deployment.yml)
+[![Build and deploy ASP.Net Core app to an Azure Web App](https://github.com/LeonardoFerreira1209/TOOLS.API/actions/workflows/azureQa.yml/badge.svg?branch=master)](https://github.com/LeonardoFerreira1209/TOOLS.API/actions/workflows/azureQa.yml)
