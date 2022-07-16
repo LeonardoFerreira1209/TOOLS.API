@@ -31,8 +31,9 @@ try
         .AddOptions()
         .ConfigureLanguage()
         .ConfigureContexto(configurations)
+        .ConfigureAuthorization(configurations)
         .ConfigureAuthentication(configurations)
-        .ConfigureAuthorization()
+        .ConfigureApllicationCookie()
         .ConfigureSwagger(configurations)
         .ConfigureDependencies(configurations)
         .ConfigureRefit(configurations)
@@ -57,8 +58,9 @@ try
         .UseDefaultFiles()
         .UseStaticFiles()
         .UseRouting()
-        .UseCors("CorsPolicy")
         .UseAuthorization()
+        .UseAuthentication()
+        .UseCors("CorsPolicy")
         .ConfigureHealthChecks()
         .UseSwaggerConfigurations(configurations);
 

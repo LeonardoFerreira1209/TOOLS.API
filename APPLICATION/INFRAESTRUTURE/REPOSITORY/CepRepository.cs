@@ -5,6 +5,7 @@ using APPLICATION.INFRAESTRUTURE.CONTEXTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
+using System.Linq.Expressions;
 
 namespace APPLICATION.INFRAESTRUTURE.REPOSITORY;
 
@@ -28,10 +29,10 @@ public class CepRepository : ICepRepository
     /// Método responsavel por retornar todos os ceps da base.
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<CepEntity>> All()
+    public async Task<IEnumerable<CepEntity>> GetWithExpression(Expression<Func<CepEntity, bool>> expression)
     {
-        Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepRepository)} - METHOD {nameof(All)}\n");
+        Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepRepository)} - METHOD {nameof(GetWithExpression)}\n");
 
-        return await new Contexto(_dbContextOptions, _appSettings).Ceps.ToListAsync();
+        return await new Contexto(_dbContextOptions, _appSettings).Ceps.Where(expression).ToArrayAsync();
     }
 }

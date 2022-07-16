@@ -3,14 +3,18 @@ using APPLICATION.DOMAIN.DTOS.REQUEST;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
 using APPLICATION.DOMAIN.UTILS;
 using APPLICATION.DOMAIN.VALIDATORS;
+using APPLICATION.INFRAESTRUTURE.GRAPHQL.DATALOADER;
+using HotChocolate.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Serilog;
+using System.ComponentModel.DataAnnotations;
 
 namespace APPLICATION.INFRAESTRUTURE.GRAPHQL.QUERIE;
 
 /// <summary>
 /// Método de query de cep
 /// </summary>
+/// 
 [EnableCors("CorsPolicy")]
 public class CepQuery : BaseQuery
 {
@@ -35,17 +39,22 @@ public class CepQuery : BaseQuery
     }
 
     /// <summary>
-    /// Query que faz acesso ao banco de dados.
+    /// Query que Recuperar ceps através do Id.
     /// </summary>
-    /// <param name="cepService"></param>
+    /// <param name="id"></param>
+    /// <param name="dataLoader"></param>
     /// <returns></returns>
-    [UseProjection]
-    [UseFiltering]
-    [UseSorting]
-    public async Task<ICollection<CepResponse>> All([Service] ICepService cepService)
-    {
-        Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepQuery)} - METHOD {nameof(All)}\n");
+    [Authorize(Policy = "Cep")] [UsePaging] [UseProjection] [UseFiltering] [UseSorting]
+    public async Task<IEnumerable<CepResponse>> WithId(
+       [Required] Guid id, GetCepByIdsDataLoader dataLoader) => await Tracker.Time(() => dataLoader.LoadAsync(id), "Recupera ceps através do Id.");
 
-        return await Tracker.Time(() => cepService.All(), "Buscar CEP no banco de dados.");
-    }
+    /// <summary>
+    /// Query que Recupera ceps através do codigo postal.
+    /// </summary>
+    /// <param name="cep"></param>
+    /// <param name="dataLoader"></param>
+    /// <returns></returns>
+    [Authorize(Policy = "Cep")] [UsePaging] [UseProjection] [UseFiltering] [UseSorting]
+    public async Task<IEnumerable<CepResponse>> WithCep(
+       [Required] string cep, GetCepByCepsDataLoader dataLoader) => await Tracker.Time(() => dataLoader.LoadAsync(cep), "Recupera ceps através do codigo postal.");
 }

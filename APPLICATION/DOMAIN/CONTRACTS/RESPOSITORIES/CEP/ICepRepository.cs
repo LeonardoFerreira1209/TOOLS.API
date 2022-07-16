@@ -1,4 +1,5 @@
 ﻿using APPLICATION.DOMAIN.DTOS.ENTITIES;
+using System.Linq.Expressions;
 
 namespace APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
 
@@ -11,5 +12,5 @@ public interface ICepRepository
     /// Chamada da função para retornar todos os registros da base.
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<CepEntity>> All();
+    Task<IEnumerable<CepEntity>> GetWithExpression(Expression<Func<CepEntity, bool>> expression);
 }

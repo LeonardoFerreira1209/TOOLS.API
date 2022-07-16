@@ -5,6 +5,8 @@
 /// </summary>
 public class CepResponse
 {
+    public Guid id { get; set; }
+
     /// <summary>
     /// Código de endereçamento postal. 
     /// </summary>

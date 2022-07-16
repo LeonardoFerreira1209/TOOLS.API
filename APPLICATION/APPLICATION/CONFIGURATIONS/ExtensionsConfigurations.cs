@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Refit;
@@ -24,6 +25,7 @@ using Serilog;
 using Serilog.Events;
 using System.Globalization;
 using System.Net.Mime;
+using System.Text;
 
 namespace APPLICATION.APPLICATION.CONFIGURATIONS;
 
@@ -94,13 +96,21 @@ public static class ExtensionsConfigurations
     /// Configuração da autenticação do sistema.
     /// </summary>
     /// <param name="services"></param>
+    /// <param name="configurations"></param>
     /// <returns></returns>
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configurations)
     {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+        services.AddAuthentication(options =>
         {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+        }).AddJwtBearer(options =>
+        {
+            options.SaveToken = true;
+
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
@@ -109,7 +119,7 @@ public static class ExtensionsConfigurations
 
                 ValidIssuer = configurations.GetValue<string>("Auth:ValidIssuer"),
                 ValidAudience = configurations.GetValue<string>("Auth:ValidAudience"),
-                IssuerSigningKey = JwtSecurityKey.Create(configurations.GetValue<string>("Auth:SecurityKey"))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configurations.GetValue<string>("Auth:SecurityKey")))
             };
 
             options.Events = new JwtBearerEvents
@@ -135,19 +145,40 @@ public static class ExtensionsConfigurations
     }
 
     /// <summary>
-    /// Configuração da autoizacao do sistema.
+    /// Configuração da authorização do sistema.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configurations"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureAuthorization(this IServiceCollection services, IConfiguration configurations)
+    {
+        services
+            .AddAuthorization(options =>
+            {
+                options.AddPolicy("Users", policy => policy.RequireClaim("Permission", "Admin", "Master"));
+
+                options.AddPolicy("Cep", policy => policy.RequireClaim("Cep", "Get", "Post", "Update", "Delete"));
+            });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configura os cookies da applicação.
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureAuthorization(this IServiceCollection services)
+    public static IServiceCollection ConfigureApllicationCookie(this IServiceCollection services)
     {
-        services.AddAuthorization(auth =>
+        return services.ConfigureApplicationCookie(options =>
         {
-            auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder().AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build());
+            options.Cookie.HttpOnly = true;
+
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+            options.SlidingExpiration = true;
 
         });
-
-        return services;
     }
 
     /// <summary>
@@ -163,6 +194,32 @@ public static class ExtensionsConfigurations
         services.AddSwaggerGen(swagger =>
         {
             swagger.EnableAnnotations();
+
+            swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization header using the Bearer scheme."
+            });
+
+            swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+
+                    Array.Empty<string>()
+                }
+            });
 
             swagger.SwaggerDoc(apiVersion, new OpenApiInfo
             {
@@ -224,7 +281,7 @@ public static class ExtensionsConfigurations
     public static IServiceCollection ConfigureGraphQL(this IServiceCollection services)
     {
         services
-            .AddGraphQLServer().AddProjections().AddFiltering().AddSorting().AddQueryType<CepQuery>();
+            .AddGraphQLServer().AddAuthorization().AddQueryType<CepQuery>().AddProjections().AddFiltering().AddSorting();
 
         return services;
     }

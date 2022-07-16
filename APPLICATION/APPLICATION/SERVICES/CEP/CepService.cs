@@ -1,10 +1,12 @@
 ﻿using APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
+using APPLICATION.DOMAIN.DTOS.ENTITIES;
 using APPLICATION.DOMAIN.DTOS.REQUEST;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
 using APPLICATION.DOMAIN.UTILS;
 using APPLICATION.INFRAESTRUTURE.FACADES.CEP;
 using Serilog;
+using System.Linq.Expressions;
 
 namespace APPLICATION.APPLICATION.SERVICES.CEP
 {
@@ -58,15 +60,15 @@ namespace APPLICATION.APPLICATION.SERVICES.CEP
         /// Métodos responsavel de fazer o acesso no banco de dados.
         /// </summary>
         /// <returns></returns>
-        public async Task<ICollection<CepResponse>> All()
+        public async Task<IEnumerable<CepResponse>> GetWithExpression(Expression<Func<CepEntity, bool>> expression)
         {
-            Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepService)} - METHOD {nameof(All)}\n");
+            Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepService)} - METHOD {nameof(GetWithExpression)}\n");
 
             try
             {
                 Log.Information($"[LOG INFORMATION] - Fazendo a chamada do {nameof(ICepRepository)}\n");
 
-                var ceps = await _cepRepository.All(); return ceps.ToCepResponse();
+                var ceps = await _cepRepository.GetWithExpression(expression); return await ceps.ToCepResponse();
             }
             catch (Exception exception)
             {

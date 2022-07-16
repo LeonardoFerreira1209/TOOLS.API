@@ -1,5 +1,7 @@
-﻿using APPLICATION.DOMAIN.DTOS.REQUEST;
+﻿using APPLICATION.DOMAIN.DTOS.ENTITIES;
+using APPLICATION.DOMAIN.DTOS.REQUEST;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
+using System.Linq.Expressions;
 
 namespace APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
 
@@ -14,10 +16,4 @@ public interface ICepService
     /// <param name="cepRequest"></param>
     /// <returns></returns>
     Task<CepResponse> GetViaCepGraphQl(CepRequest cepRequest);
-
-    /// <summary>
-    /// Faz uma chamada para o repositorio trazendo todos os registros.
-    /// </summary>
-    /// <returns></returns>
-    Task<ICollection<CepResponse>> All();
 }

@@ -90,10 +90,11 @@ public static class Extensions
     /// </summary>
     /// <param name="ceps"></param>
     /// <returns></returns>
-    public static List<CepResponse> ToCepResponse(this IEnumerable<CepEntity> ceps)
+    public async static Task<IEnumerable<CepResponse>> ToCepResponse(this IEnumerable<CepEntity> ceps)
     {
-        return ceps.Select(cep => new CepResponse
+        return await Task.FromResult(ceps.Select(cep => new CepResponse
         {
+            id = cep.Id,
             cep = cep.Cep,
             bairro = cep.Bairro,
             complemento = cep.Complemento,
@@ -105,7 +106,7 @@ public static class Extensions
             siafi = cep.Siafi,
             uf = cep.Uf
 
-        }).ToList();
+        }).ToList());
     }
     #endregion
 }
