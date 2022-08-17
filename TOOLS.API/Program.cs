@@ -14,11 +14,7 @@ try
     // Pegando configurações do appsettings.json.
     var configurations = builder.Configuration;
 
-    // Chamada da configuração do Serilog - Logs do sistema.
-    builder
-        .ConfigureSerilog();
-
-    Log.Information($"[LOG INFORMATION] - Inicializando aplicação [TOOLS.API] - [INICIANDO]\n");
+    builder.Services.AddSignalR();
 
     /// <summary>
     /// Chamada das configurações do projeto.
@@ -37,9 +33,13 @@ try
         .ConfigureSwagger(configurations)
         .ConfigureDependencies(configurations)
         .ConfigureRefit(configurations)
+        .ConfigureTelemetry(configurations)
+        .ConfigureApplicationInsights(configurations)
+        .ConfigureSerilog()
         .ConfigureGraphQL()
         .ConfigureHealthChecks(configurations)
         .ConfigureCors()
+        .ConfigureRegisterJobs()
         .AddControllers(options =>
         {
             options.EnableEndpointRouting = false;
@@ -61,13 +61,14 @@ try
         .UseAuthorization()
         .UseAuthentication()
         .UseCors("CorsPolicy")
-        .ConfigureHealthChecks()
-        .UseSwaggerConfigurations(configurations);
+        .UseHealthChecks()
+        .UseSwaggerConfigurations(configurations)
+        .UseEndpoints();
 
     // Chamando a configuração do GraphQL.
     applicationbuilder.MapGraphQL();
 
-    Log.Information($"[LOG INFORMATION] - Inicializando aplicação [TOOLS.API] - [FINALIZADO]\n");
+    Log.Information($"[LOG INFORMATION] - Inicializando aplicação [TOOLS.API]\n");
 
     // Iniciando a aplicação com todas as configurações já carregadas.
     applicationbuilder.Run();

@@ -44,8 +44,8 @@ public class CepQuery : BaseQuery
     /// <param name="id"></param>
     /// <param name="dataLoader"></param>
     /// <returns></returns>
-    [Authorize(Policy = "Cep")] [UsePaging] [UseProjection] [UseFiltering] [UseSorting]
-    public async Task<IEnumerable<CepResponse>> WithId(
+    [Authorize(Policy = "admin")] [UsePaging] [UseProjection] [UseFiltering] [UseSorting]
+    public static async Task<IEnumerable<CepResponse>> WithId(
        [Required] Guid id, GetCepByIdsDataLoader dataLoader) => await Tracker.Time(() => dataLoader.LoadAsync(id), "Recupera ceps através do Id.");
 
     /// <summary>
@@ -54,7 +54,7 @@ public class CepQuery : BaseQuery
     /// <param name="cep"></param>
     /// <param name="dataLoader"></param>
     /// <returns></returns>
-    [Authorize(Policy = "Cep")] [UsePaging] [UseProjection] [UseFiltering] [UseSorting]
-    public async Task<IEnumerable<CepResponse>> WithCep(
+    [Authorize(Policy = "admin")] [UsePaging] [UseProjection] [UseFiltering] [UseSorting]
+    public static async Task<IEnumerable<CepResponse>> WithCep(
        [Required] string cep, GetCepByCepsDataLoader dataLoader) => await Tracker.Time(() => dataLoader.LoadAsync(cep), "Recupera ceps através do codigo postal.");
 }

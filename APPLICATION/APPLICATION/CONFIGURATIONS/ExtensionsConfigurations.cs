@@ -1,15 +1,25 @@
-﻿using APPLICATION.APPLICATION.CONFIGURATIONS.SWAGGER;
+﻿using APPLICATION.APPLICATION.CONFIGURATIONS.APPLICATIONINSIGHTS;
+using APPLICATION.APPLICATION.CONFIGURATIONS.SWAGGER;
 using APPLICATION.APPLICATION.SERVICES.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.API;
+using APPLICATION.DOMAIN.CONTRACTS.CONFIGURATIONS;
+using APPLICATION.DOMAIN.CONTRACTS.CONFIGURATIONS.APPLICATIONINSIGHTS;
 using APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
-using APPLICATION.DOMAIN.DTOS.CONFIGURATION.AUTH.TOKEN;
+using APPLICATION.DOMAIN.UTILS.GLOBAL;
 using APPLICATION.INFRAESTRUTURE.CONTEXTO;
 using APPLICATION.INFRAESTRUTURE.FACADES.CEP;
 using APPLICATION.INFRAESTRUTURE.GRAPHQL.QUERIE;
+using APPLICATION.INFRAESTRUTURE.JOBS;
+using APPLICATION.INFRAESTRUTURE.JOBS.FACTORY;
+using APPLICATION.INFRAESTRUTURE.JOBS.FACTORY.FLUENTSCHEDULER;
+using APPLICATION.INFRAESTRUTURE.JOBS.INTERFACES;
 using APPLICATION.INFRAESTRUTURE.REPOSITORY;
+using APPLICATION.INFRAESTRUTURE.SIGNALR.HUBS;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -33,32 +43,37 @@ public static class ExtensionsConfigurations
 {
     public static readonly string HealthCheckEndpoint = "/application/healthcheck";
 
+    private static string _applicationInsightsKey;
+
+    private static TelemetryConfiguration _telemetryConfig;
+
+    private static TelemetryClient _telemetryClient;
+
     /// <summary>
     /// Configuração de Logs do sistema.
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static WebApplicationBuilder ConfigureSerilog(this WebApplicationBuilder applicationBuilder)
+    public static IServiceCollection ConfigureSerilog(this IServiceCollection services)
     {
-        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        Log.Logger = new LoggerConfiguration()
+                                .MinimumLevel.Debug()
+                                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                                .MinimumLevel.Override("System", LogEventLevel.Error)
+                                .Enrich.FromLogContext()
+                                .Enrich.WithEnvironmentUserName()
+                                .Enrich.WithMachineName()
+                                .Enrich.WithProcessId()
+                                .Enrich.WithProcessName()
+                                .Enrich.WithThreadId()
+                                .Enrich.WithThreadName()
+                                .WriteTo.Console()
+                                .WriteTo.ApplicationInsights(_telemetryConfig, TelemetryConverter.Traces, LogEventLevel.Information)
+                                .CreateLogger();
+        services
+            .AddTransient<ILogWithMetric, LogWithMetric>();
 
-        applicationBuilder.Host.UseSerilog((context, config) =>
-        {
-            config
-            .MinimumLevel.Debug()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-            .MinimumLevel.Override("System", LogEventLevel.Error)
-            .Enrich.FromLogContext()
-            .Enrich.WithEnvironmentUserName()
-            .Enrich.WithMachineName()
-            .Enrich.WithProcessId()
-            .Enrich.WithProcessName()
-            .Enrich.WithThreadId()
-            .Enrich.WithThreadName()
-            .WriteTo.Console();
-        });
-
-        return applicationBuilder;
+        return services;
     }
 
     /// <summary>
@@ -87,7 +102,7 @@ public static class ExtensionsConfigurations
     public static IServiceCollection ConfigureContexto(this IServiceCollection services, IConfiguration configurations)
     {
         services
-            .AddDbContext<Contexto>(options => options.UseSqlServer(configurations.GetValue<string>("ConnectionStrings:BaseDados")));
+            .AddDbContext<Contexto>(options => options.UseLazyLoadingProxies().UseSqlServer(configurations.GetValue<string>("ConnectionStrings:BaseDados")));
 
         return services;
     }
@@ -135,6 +150,8 @@ public static class ExtensionsConfigurations
                 {
                     Log.Information("[LOG INFORMATION] - OnTokenValidated " + context.SecurityToken);
 
+                    GlobalData<object>.GlobalItems.Add(new KeyValuePair<string, object>("Authorization", context.SecurityToken));
+
                     return Task.CompletedTask;
                 }
             };
@@ -153,12 +170,57 @@ public static class ExtensionsConfigurations
     public static IServiceCollection ConfigureAuthorization(this IServiceCollection services, IConfiguration configurations)
     {
         services
-            .AddAuthorization(options =>
-            {
-                options.AddPolicy("Users", policy => policy.RequireClaim("Permission", "Admin", "Master"));
+             .AddAuthorization(options =>
+             {
+                 options.AddPolicy("admin", policy => policy.RequireClaim("access", "all"));
+             });
 
-                options.AddPolicy("Cep", policy => policy.RequireClaim("Cep", "Get", "Post", "Update", "Delete"));
-            });
+        return services;
+    }
+
+    /// <summary>
+    /// Configuração de métricas
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureTelemetry(this IServiceCollection services, IConfiguration configuration)
+    {
+        var httpContextAccessor = services.BuildServiceProvider().GetService<IHttpContextAccessor>();
+
+        _telemetryConfig = TelemetryConfiguration.CreateDefault();
+
+        _telemetryConfig.ConnectionString = configuration.GetSection("ApplicationInsights:ConnectionStringApplicationInsightsKey").Value;
+
+        _telemetryConfig.TelemetryInitializers.Add(new ApplicationInsightsInitializer(configuration, httpContextAccessor));
+
+        _telemetryClient = new TelemetryClient(_telemetryConfig);
+
+        services
+            .AddSingleton<ITelemetryInitializer>(x => new ApplicationInsightsInitializer(configuration, httpContextAccessor))
+            .AddSingleton<ITelemetryProxy>(x => new TelemetryProxy(_telemetryClient));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configuração de App Insights
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureApplicationInsights(this IServiceCollection services, IConfiguration configuration)
+    {
+        var metrics = new ApplicationInsightsMetrics(_telemetryClient, _applicationInsightsKey);
+
+        var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
+        {
+            ConnectionString = configuration.GetSection("ApplicationInsights:ConnectionStringApplicationInsightsKey").Value
+        };
+
+        services
+            .AddApplicationInsightsTelemetry(applicationInsightsServiceOptions)
+            .AddTransient(x => metrics)
+            .AddTransient<IApplicationInsightsMetrics>(x => metrics);
 
         return services;
     }
@@ -248,14 +310,23 @@ public static class ExtensionsConfigurations
     /// <returns></returns>
     public static IServiceCollection ConfigureDependencies(this IServiceCollection services, IConfiguration configurations)
     {
+        if (string.IsNullOrEmpty(configurations.GetValue<string>("ApplicationInsights:InstrumentationKey")))
+        {
+            var argNullEx = new ArgumentNullException("AppInsightsKey não pode ser nulo.", new Exception("Parametro inexistente.")); throw argNullEx;
+        }
+        else
+        {
+            _applicationInsightsKey = configurations.GetValue<string>("ApplicationInsights:InstrumentationKey");
+        }
+
         services
             .AddTransient(x => configurations)
-        // Services
+            // Services
             .AddTransient<ICepService, CepService>()
-        // Facades
+            // Facades
             .AddSingleton<ICepFacade, CepFacade>()
-        //Repositories
-            .AddSingleton<ICepRepository, CepRepository>();
+            //Repositories
+            .AddScoped<ICepRepository, CepRepository>();
 
         return services;
     }
@@ -268,7 +339,7 @@ public static class ExtensionsConfigurations
     public static IServiceCollection ConfigureRefit(this IServiceCollection services, IConfiguration configurations)
     {
         services
-            .AddRefitClient<ICepExternal>().ConfigureHttpClient(c => c.BaseAddress = configurations.GetValue<Uri>("UrlBase:cep"));
+            .AddRefitClient<ICepExternal>().ConfigureHttpClient(c => c.BaseAddress = configurations.GetValue<Uri>("UrlBase:URL_CEP"));
 
         return services;
     }
@@ -301,6 +372,35 @@ public static class ExtensionsConfigurations
     }
 
     /// <summary>
+    /// Registro de Jobs.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureRegisterJobs(this IServiceCollection services)
+    {
+        services.AddTransient<IRegistryJobs, RegistryJobs>();
+
+        services.AddTransient<IProcessDeleteUserWithoutPersonJob, ProcessDeleteUserWithoutPersonJob>();
+
+        services.ConfigureStartJobs();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Iniciar Jobs.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureStartJobs(this IServiceCollection services)
+    {
+        // Iniciar os Jobs.
+        new ScheduledTasksManager(services.GetProvider()).StartJobs();
+
+        return services;
+    }
+
+    /// <summary>
     /// Configuração dos cors aceitos.
     /// </summary>
     /// <param name="services"></param>
@@ -311,7 +411,7 @@ public static class ExtensionsConfigurations
         {
             options.AddPolicy("CorsPolicy", policy =>
             {
-                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                policy.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials();
             });
         });
     }
@@ -321,7 +421,7 @@ public static class ExtensionsConfigurations
     /// </summary>
     /// <param name="application"></param>
     /// <returns></returns>
-    public static IApplicationBuilder ConfigureHealthChecks(this IApplicationBuilder application)
+    public static IApplicationBuilder UseHealthChecks(this IApplicationBuilder application)
     {
         application.UseHealthChecks(ExtensionsConfigurations.HealthCheckEndpoint, new HealthCheckOptions
         {
@@ -343,6 +443,21 @@ public static class ExtensionsConfigurations
 
                 await context.Response.WriteAsync(result);
             }
+        });
+
+        return application;
+    }
+
+     /// <summary>
+    /// Coniguras os endpoints & Hubs
+    /// </summary>
+    /// <param name="application"></param>
+    /// <returns></returns>
+    public static IApplicationBuilder UseEndpoints(this IApplicationBuilder application)
+    {
+        application.UseEndpoints(endpoints =>
+        {
+            endpoints.MapHub<HubNotify>("/notify");
         });
 
         return application;
@@ -370,5 +485,15 @@ public static class ExtensionsConfigurations
             .UseMvcWithDefaultRoute();
 
         return application;
+    }
+
+    /// <summary>
+    /// Retorna um provider do service.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    private static ServiceProvider GetProvider(this IServiceCollection services)
+    {
+        return services.BuildServiceProvider();
     }
 }

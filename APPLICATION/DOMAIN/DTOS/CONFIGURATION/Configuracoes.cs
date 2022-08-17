@@ -8,6 +8,7 @@ public class AppSettings
     public ConnectionStrings ConnectionStrings { get; set; }
     public SwaggerInfo SwaggerInfo { get; set; }
     public Configuracoes Configuracoes { get; set; }
+    public Auth Auth { get; set; }
     public UrlBase UrlBase { get; set; }
     public RetryPolicy RetryPolicy { get; set; }
 }
@@ -41,7 +42,15 @@ public class Configuracoes
     public int QuantidadeMaximaDeRetentativas { get; set; }
 }
 
+public class Auth
+{
+    public string ValidIssuer { get; set; }
+    public string ValidAudience { get; set; }
+    public string SecurityKey { get; set; }
+}
+
+
 public class UrlBase
 {
-    public string Cep { get; set; }
+    public string URL_CEP { get; set; }
 }
