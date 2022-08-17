@@ -118,7 +118,6 @@ jobs:
           Auth.ValidIssuer: ${{ secrets.__HYPER_SECURITY_SSUER_BEARER__ }}
           Auth.ValidAudience: ${{ secrets.__HYPER_SECURITY_AUDIENCE_BEARER__ }}
           Auth.SecurityKey: ${{ secrets.__HYPER_SECURITY_KEY__ }}
-          Auth.ExpiresIn: ${{ secrets.__SECURITY_TOKEN_EXPIRES_IN__ }}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
