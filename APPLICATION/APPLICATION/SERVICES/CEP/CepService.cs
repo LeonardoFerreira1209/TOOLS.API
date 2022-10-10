@@ -1,8 +1,8 @@
 ﻿using APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
-using APPLICATION.DOMAIN.DTOS.ENTITIES;
 using APPLICATION.DOMAIN.DTOS.REQUEST;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
+using APPLICATION.DOMAIN.ENTITY.CEP;
 using APPLICATION.DOMAIN.UTILS.EXTENSIONS;
 using APPLICATION.INFRAESTRUTURE.FACADES.CEP;
 using Serilog;
@@ -29,9 +29,9 @@ namespace APPLICATION.APPLICATION.SERVICES.CEP
         /// <summary>
         /// Método responsável por fazer o acesso ao viacep.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="cepRequest"></param>
         /// <returns></returns>
-        public async Task<CepResponse> GetViaCepGraphQl(CepRequest request)
+        public async Task<CepResponse> GetViaCepGraphQl(CepRequest cepRequest)
         {
             Log.Information($"[LOG INFORMATION] - SET TITLE {nameof(CepService)} - METHOD {nameof(GetViaCepGraphQl)}\n");
 
@@ -39,7 +39,7 @@ namespace APPLICATION.APPLICATION.SERVICES.CEP
             {
                 Log.Information($"[LOG INFORMATION] - Fazendo a chamada do {nameof(ICepFacade)}\n");
 
-                var response = await _cepFacade.GetViaCep(request);
+                var response = await _cepFacade.GetViaCep(cepRequest);
 
                 if (response.Sucesso)
                 {

@@ -1,15 +1,12 @@
-﻿namespace APPLICATION.DOMAIN.DTOS.ENTITIES;
+﻿using APPLICATION.DOMAIN.ENTITY.BASE;
+
+namespace APPLICATION.DOMAIN.ENTITY.CEP;
 
 /// <summary>
 /// Entidade de cep
 /// </summary>
-public class CepEntity
+public class CepEntity : BaseEntity
 {
-    /// <summary>
-    /// Chave primária para localização no sistema.
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Código de endereçamento postal. 
     /// </summary>

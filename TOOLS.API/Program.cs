@@ -3,6 +3,7 @@ using APPLICATION.DOMAIN.DTOS.CONFIGURATION;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 
@@ -19,10 +20,9 @@ try
     /// <summary>
     /// Chamada das configurações do projeto.
     /// </summary>
-    /// 
     builder.Services
-        .Configure<AppSettings>(configurations).AddSingleton<AppSettings>()
         .AddHttpContextAccessor()
+        .Configure<AppSettings>(configurations).AddSingleton<AppSettings>()
         .AddEndpointsApiExplorer()
         .AddOptions()
         .ConfigureLanguage()
@@ -31,10 +31,19 @@ try
         .ConfigureAuthentication(configurations)
         .ConfigureApllicationCookie()
         .ConfigureSwagger(configurations)
-        .ConfigureDependencies(configurations)
-        .ConfigureRefit(configurations)
-        .ConfigureTelemetry(configurations)
-        .ConfigureApplicationInsights(configurations)
+        .ConfigureDependencies(configurations, builder.Environment)
+        .ConfigureRefit(configurations);
+
+    // Se for em produção executa.
+    if (builder.Environment.IsProduction())
+    {
+        builder.Services
+            .ConfigureTelemetry(configurations)
+            .ConfigureApplicationInsights(configurations);
+    }
+
+    // Continuação do pipeline...
+    builder.Services
         .ConfigureSerilog()
         .ConfigureGraphQL()
         .ConfigureHealthChecks(configurations)

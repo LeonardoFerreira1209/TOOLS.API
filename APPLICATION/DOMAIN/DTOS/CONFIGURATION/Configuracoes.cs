@@ -49,7 +49,6 @@ public class Auth
     public string SecurityKey { get; set; }
 }
 
-
 public class UrlBase
 {
     public string URL_CEP { get; set; }

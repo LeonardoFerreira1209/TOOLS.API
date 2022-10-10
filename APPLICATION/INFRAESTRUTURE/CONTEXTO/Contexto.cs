@@ -1,5 +1,5 @@
 ﻿using APPLICATION.DOMAIN.DTOS.CONFIGURATION;
-using APPLICATION.DOMAIN.DTOS.ENTITIES;
+using APPLICATION.DOMAIN.ENTITY.CEP;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 

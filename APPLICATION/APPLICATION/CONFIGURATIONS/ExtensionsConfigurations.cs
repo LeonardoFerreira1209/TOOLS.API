@@ -22,11 +22,13 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -155,7 +157,6 @@ public static class ExtensionsConfigurations
                     return Task.CompletedTask;
                 }
             };
-
         });
 
         return services;
@@ -293,7 +294,8 @@ public static class ExtensionsConfigurations
                 {
                     Name = "HYPER.IO DESENVOLVIMENTOS LTDA",
                     Email = "HYPER.IO@OUTLOOK.COM",
-                }
+                },
+                TermsOfService = new Uri(uriMyGit)
 
             });
 
@@ -308,15 +310,19 @@ public static class ExtensionsConfigurations
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureDependencies(this IServiceCollection services, IConfiguration configurations)
+    public static IServiceCollection ConfigureDependencies(this IServiceCollection services, IConfiguration configurations, IWebHostEnvironment webHostEnvironment)
     {
-        if (string.IsNullOrEmpty(configurations.GetValue<string>("ApplicationInsights:InstrumentationKey")))
+        // Se for ambiente de produção executa
+        if (webHostEnvironment.IsProduction())
         {
-            var argNullEx = new ArgumentNullException("AppInsightsKey não pode ser nulo.", new Exception("Parametro inexistente.")); throw argNullEx;
-        }
-        else
-        {
-            _applicationInsightsKey = configurations.GetValue<string>("ApplicationInsights:InstrumentationKey");
+            if (string.IsNullOrEmpty(configurations.GetValue<string>("ApplicationInsights:InstrumentationKey")))
+            {
+                var argNullEx = new ArgumentNullException("AppInsightsKey não pode ser nulo.", new Exception("Parametro inexistente.")); throw argNullEx;
+            }
+            else
+            {
+                _applicationInsightsKey = configurations.GetValue<string>("ApplicationInsights:InstrumentationKey");
+            }
         }
 
         services
