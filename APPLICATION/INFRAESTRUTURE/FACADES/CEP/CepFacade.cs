@@ -1,6 +1,7 @@
 ﻿using APPLICATION.DOMAIN.CONTRACTS.API;
 using APPLICATION.DOMAIN.DTOS.REQUEST;
 using APPLICATION.DOMAIN.DTOS.RESPONSE;
+using APPLICATION.ENUMS;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -37,14 +38,14 @@ public class CepFacade : ICepFacade
             }
             else
             {
-                return new ApiResponse<CepResponse>(sucesso, new List<DadosNotificacao> { new DadosNotificacao(DOMAIN.ENUM.StatusCodes.ErrorBadRequest, "Via cep retorno sem sucesso") });
+                return new ApiResponse<CepResponse>(sucesso, new List<DadosNotificacao> { new DadosNotificacao(StatusCodes.ErrorBadRequest, "Via cep retorno sem sucesso") });
             }
         }
         catch (Exception exception)
         {
             Log.Error("[LOG ERROR]", exception, exception.Message);
 
-            return new ApiResponse<CepResponse>(false, new List<DadosNotificacao> { new DadosNotificacao(DOMAIN.ENUM.StatusCodes.ServerErrorInternalServerError, exception.Message) });
+            return new ApiResponse<CepResponse>(false, new List<DadosNotificacao> { new DadosNotificacao(StatusCodes.ServerErrorInternalServerError, exception.Message) });
         }
     }
 

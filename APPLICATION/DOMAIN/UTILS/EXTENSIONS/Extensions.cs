@@ -1,6 +1,5 @@
 ﻿using APPLICATION.DOMAIN.DTOS.RESPONSE;
 using APPLICATION.DOMAIN.ENTITY.CEP;
-using APPLICATION.DOMAIN.ENUM;
 using APPLICATION.ENUMS;
 using FluentValidation.Results;
 using Newtonsoft.Json;

@@ -4,17 +4,13 @@ using APPLICATION.DOMAIN.UTILS.EXTENSIONS;
 
 namespace APPLICATION.INFRAESTRUTURE.GRAPHQL.DATALOADER;
 
-#region C
-
-#region CEP
-
 public class GetCepByIdsDataLoader : GroupedDataLoader<Guid, CepResponse>
 {
     private readonly ICepRepository _cepRepository;
 
     public GetCepByIdsDataLoader(ICepRepository cepRepository, IBatchScheduler batchScheduler, DataLoaderOptions options) : base(batchScheduler, options)
     {
-        _cepRepository = cepRepository ?? throw new ArgumentNullException(nameof(cepRepository)); ;
+        _cepRepository = cepRepository ?? throw new ArgumentNullException(nameof(cepRepository));
     }
 
     protected override async Task<ILookup<Guid, CepResponse>> LoadGroupedBatchAsync(IReadOnlyList<Guid> keys, CancellationToken cancellationToken)
@@ -29,7 +25,7 @@ public class GetCepByCepsDataLoader : GroupedDataLoader<string, CepResponse>
 
     public GetCepByCepsDataLoader(ICepRepository cepRepository, IBatchScheduler batchScheduler, DataLoaderOptions options) : base(batchScheduler, options)
     {
-        _cepRepository = cepRepository ?? throw new ArgumentNullException(nameof(cepRepository)); ;
+        _cepRepository = cepRepository ?? throw new ArgumentNullException(nameof(cepRepository));
     }
 
     protected override async Task<ILookup<string, CepResponse>> LoadGroupedBatchAsync(IReadOnlyList<string> keys, CancellationToken cancellationToken)
@@ -37,7 +33,3 @@ public class GetCepByCepsDataLoader : GroupedDataLoader<string, CepResponse>
         var ceps = await _cepRepository.GetWithExpression(x => keys.Contains(x.Cep)).Result.ToCepResponse(); return ceps.ToLookup(x => x.cep);
     }
 }
-
-#endregion
-
-#endregion

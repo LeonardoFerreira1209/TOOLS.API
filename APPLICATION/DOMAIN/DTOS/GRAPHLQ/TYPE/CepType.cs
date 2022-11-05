@@ -1,6 +1,6 @@
 ﻿using APPLICATION.DOMAIN.DTOS.RESPONSE;
 
-namespace APPLICATION.DOMAIN.DTOS.GRAPHQL.TYPE;
+namespace APPLICATION.DOMAIN.DTOS.GRAPHLQ.TYPE;
 
 /// <summary>
 /// Tipo de retorno do GRAPQL.
