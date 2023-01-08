@@ -14,9 +14,12 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="6.0.2" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="FluentScheduler" Version="5.5.1" />
     <PackageReference Include="FluentValidation" Version="11.2.2" />
+    <PackageReference Include="Hangfire" Version="1.7.32" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="12.15.1" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="12.15.1" />
     <PackageReference Include="HotChocolate.Data" Version="12.15.1" />
@@ -55,6 +58,11 @@
 
   <ItemGroup>
     <Folder Include="INFRAESTRUTURE\CONTEXTO\CONFIGUREDATATYPES\" />
+    <Folder Include="INFRAESTRUTURE\JOBS\FACTORY\" />
+    <Folder Include="INFRAESTRUTURE\JOBS\INTERFACES\" />
+    <Folder Include="INFRAESTRUTURE\JOBS\INTERFACES\RECURRENT\" />
+    <Folder Include="INFRAESTRUTURE\JOBS\QUEUED\" />
+    <Folder Include="INFRAESTRUTURE\JOBS\RECURRENT\" />
     <Folder Include="MIGRATIONS\" />
   </ItemGroup>
 

@@ -1,21 +1,25 @@
 ﻿using APPLICATION.APPLICATION.CONFIGURATIONS.APPLICATIONINSIGHTS;
 using APPLICATION.APPLICATION.CONFIGURATIONS.SWAGGER;
 using APPLICATION.APPLICATION.SERVICES.CEP;
+using APPLICATION.APPLICATION.SERVICES.EVENT;
 using APPLICATION.DOMAIN.CONTRACTS.API;
 using APPLICATION.DOMAIN.CONTRACTS.CONFIGURATIONS;
 using APPLICATION.DOMAIN.CONTRACTS.CONFIGURATIONS.APPLICATIONINSIGHTS;
-using APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
+using APPLICATION.DOMAIN.CONTRACTS.REPOSITORY.CEP;
+using APPLICATION.DOMAIN.CONTRACTS.REPOSITORY.EVENT;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
+using APPLICATION.DOMAIN.CONTRACTS.SERVICES.EVENT;
 using APPLICATION.DOMAIN.UTILS.GLOBAL;
 using APPLICATION.INFRAESTRUTURE.CONTEXTO;
 using APPLICATION.INFRAESTRUTURE.FACADES.CEP;
 using APPLICATION.INFRAESTRUTURE.GRAPHQL.QUERIE;
-using APPLICATION.INFRAESTRUTURE.JOBS;
-using APPLICATION.INFRAESTRUTURE.JOBS.FACTORY;
 using APPLICATION.INFRAESTRUTURE.JOBS.FACTORY.FLUENTSCHEDULER;
-using APPLICATION.INFRAESTRUTURE.JOBS.INTERFACES;
-using APPLICATION.INFRAESTRUTURE.REPOSITORY;
+using APPLICATION.INFRAESTRUTURE.JOBS.FACTORY.HANGFIRE;
+using APPLICATION.INFRAESTRUTURE.JOBS.INTERFACES.BASE;
+using APPLICATION.INFRAESTRUTURE.REPOSITORY.CEP;
+using APPLICATION.INFRAESTRUTURE.REPOSITORY.PLAN;
 using APPLICATION.INFRAESTRUTURE.SIGNALR.HUBS;
+using Hangfire;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -104,7 +108,7 @@ public static class ExtensionsConfigurations
     public static IServiceCollection ConfigureContexto(this IServiceCollection services, IConfiguration configurations)
     {
         services
-            .AddDbContext<Contexto>(options => options.UseLazyLoadingProxies().UseSqlServer(configurations.GetValue<string>("ConnectionStrings:BaseDados")));
+            .AddDbContext<Context>(options => options.UseLazyLoadingProxies().UseSqlServer(configurations.GetValue<string>("ConnectionStrings:BaseDados")));
 
         return services;
     }
@@ -152,7 +156,10 @@ public static class ExtensionsConfigurations
                 {
                     Log.Information("[LOG INFORMATION] - OnTokenValidated " + context.SecurityToken);
 
-                    GlobalData<object>.GlobalItems.Add(new KeyValuePair<string, object>("Authorization", context.SecurityToken));
+                    GlobalData.GlobalUser = new DOMAIN.DTOS.USER.UserData
+                    {
+                        Id = Guid.Parse(context.Principal.Claims?.FirstOrDefault().Value)
+                    };
 
                     return Task.CompletedTask;
                 }
@@ -177,6 +184,24 @@ public static class ExtensionsConfigurations
              });
 
         return services;
+    }
+
+    /// <summary>
+    /// Configura os cookies da applicação.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureApllicationCookie(this IServiceCollection services)
+    {
+        return services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true;
+
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+            options.SlidingExpiration = true;
+
+        });
     }
 
     /// <summary>
@@ -224,24 +249,6 @@ public static class ExtensionsConfigurations
             .AddTransient<IApplicationInsightsMetrics>(x => metrics);
 
         return services;
-    }
-
-    /// <summary>
-    /// Configura os cookies da applicação.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
-    public static IServiceCollection ConfigureApllicationCookie(this IServiceCollection services)
-    {
-        return services.ConfigureApplicationCookie(options =>
-        {
-            options.Cookie.HttpOnly = true;
-
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
-            options.SlidingExpiration = true;
-
-        });
     }
 
     /// <summary>
@@ -329,10 +336,12 @@ public static class ExtensionsConfigurations
             .AddTransient(x => configurations)
             // Services
             .AddTransient<ICepService, CepService>()
+            .AddTransient<IEventService, EventService>()
             // Facades
             .AddSingleton<ICepFacade, CepFacade>()
             //Repositories
-            .AddScoped<ICepRepository, CepRepository>();
+            .AddScoped<ICepRepository, CepRepository>()
+            .AddScoped<IEventRepository, EventRepository>();
 
         return services;
     }
@@ -364,6 +373,22 @@ public static class ExtensionsConfigurations
     }
 
     /// <summary>
+    /// Configuração dos cors aceitos.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureCors(this IServiceCollection services)
+    {
+        return services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy", policy =>
+            {
+                policy.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials();
+            });
+        });
+    }
+
+    /// <summary>
     /// Configuração do HealthChecks do sistema.
     /// </summary>
     /// <param name="services"></param>
@@ -382,11 +407,11 @@ public static class ExtensionsConfigurations
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureRegisterJobs(this IServiceCollection services)
+    public static IServiceCollection ConfigureFluentSchedulerJobs(this IServiceCollection services)
     {
-        services.AddTransient<IRegistryJobs, RegistryJobs>();
+        services.AddTransient<IFluentSchedulerJobs, FluentSchedulerJobs>();
 
-        services.AddTransient<IProcessDeleteUserWithoutPersonJob, ProcessDeleteUserWithoutPersonJob>();
+        //services.AddTransient<IProcessDeleteUserWithoutPersonJob, ProcessDeleteUserWithoutPersonJob>();
 
         services.ConfigureStartJobs();
 
@@ -407,19 +432,22 @@ public static class ExtensionsConfigurations
     }
 
     /// <summary>
-    /// Configuração dos cors aceitos.
+    /// Configure Hangfire
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureCors(this IServiceCollection services)
+    public static IServiceCollection ConfigureHangFire(this IServiceCollection services, IConfiguration configurations)
     {
-        return services.AddCors(options =>
-        {
-            options.AddPolicy("CorsPolicy", policy =>
-            {
-                policy.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials();
-            });
-        });
+        services.AddHangfire(configuration => configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_170).UseSimpleAssemblyNameTypeSerializer().UseRecommendedSerializerSettings().UseSqlServerStorage(configurations.GetConnectionString("BaseDados")));
+
+        services.AddTransient<IHangfireJobs, HangfireJobs>();
+
+        // Add the processing server as IHostedService
+        services.AddHangfireServer();
+
+        services.GetProvider().GetService<IHangfireJobs>().RegistrarJobs();
+
+        return services;
     }
 
     /// <summary>

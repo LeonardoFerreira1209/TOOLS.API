@@ -1,7 +1,7 @@
-﻿using APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
+﻿using APPLICATION.DOMAIN.CONTRACTS.REPOSITORY.CEP;
 using APPLICATION.DOMAIN.CONTRACTS.SERVICES.CEP;
-using APPLICATION.DOMAIN.DTOS.REQUEST;
-using APPLICATION.DOMAIN.DTOS.RESPONSE;
+using APPLICATION.DOMAIN.DTOS.REQUEST.CEP;
+using APPLICATION.DOMAIN.DTOS.RESPONSE.CEP;
 using APPLICATION.DOMAIN.ENTITY.CEP;
 using APPLICATION.DOMAIN.UTILS.EXTENSIONS;
 using APPLICATION.INFRAESTRUTURE.FACADES.CEP;
@@ -39,12 +39,11 @@ namespace APPLICATION.APPLICATION.SERVICES.CEP
             {
                 Log.Information($"[LOG INFORMATION] - Fazendo a chamada do {nameof(ICepFacade)}\n");
 
+                // Get cep.
                 var response = await _cepFacade.GetViaCep(cepRequest);
 
-                if (response.Sucesso)
-                {
-                    return response.Dados;
-                }
+                // is success.
+                if (response.Sucesso) return response.Dados;
 
                 return null;
             }
@@ -68,6 +67,7 @@ namespace APPLICATION.APPLICATION.SERVICES.CEP
             {
                 Log.Information($"[LOG INFORMATION] - Fazendo a chamada do {nameof(ICepRepository)}\n");
 
+                // get cep based in expression.
                 var ceps = await _cepRepository.GetWithExpression(expression); return await ceps.ToCepResponse();
             }
             catch (Exception exception)

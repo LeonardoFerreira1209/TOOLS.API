@@ -1,4 +1,4 @@
-﻿using APPLICATION.DOMAIN.DTOS.RESPONSE;
+﻿using APPLICATION.DOMAIN.DTOS.RESPONSE.UTILS;
 using APPLICATION.ENUMS;
 using FluentValidation.Results;
 
@@ -9,30 +9,18 @@ namespace APPLICATION.APPLICATION.CONFIGURATIONS
     /// </summary>
     public static class CustomValidationExtensions
     {
-        public static ApiResponse<CepResponse> CarregarErrosValidatorCepResponse(this ValidationResult validationResult)
+        /// <summary>
+        /// Tratamentos de erros.
+        /// </summary>
+        /// <param name="validationResult"></param>
+        /// <returns></returns>
+        public static ApiResponse<object> CarregarErrosValidator(this ValidationResult validationResult, object dados = null)
         {
             var _notificacoes = new List<DadosNotificacao>();
 
-            foreach (var erro in validationResult.Errors) _notificacoes.Add(new DadosNotificacao(StatusCodes.ErrorBadRequest, erro.ErrorMessage));
+            foreach (var erro in validationResult.Errors) _notificacoes.Add(new DadosNotificacao(erro.ErrorMessage));
 
-            return new ApiResponse<CepResponse>
-            {
-                Sucesso = false,
-                Notificacoes = _notificacoes.ToList()
-            };
-        }
-
-        public static ApiResponse<object> CarregarErrosValidator(this ValidationResult validationResult)
-        {
-            var _notificacoes = new List<DadosNotificacao>();
-
-            foreach (var erro in validationResult.Errors) _notificacoes.Add(new DadosNotificacao(StatusCodes.ErrorBadRequest, erro.ErrorMessage));
-
-            return new ApiResponse<object>
-            {
-                Sucesso = false,
-                Notificacoes = _notificacoes.ToList()
-            };
+            return new ApiResponse<object>(false, StatusCodes.ErrorBadRequest, dados, _notificacoes);
         }
     }
 }

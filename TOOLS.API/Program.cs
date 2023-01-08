@@ -48,7 +48,8 @@ try
         .ConfigureGraphQL()
         .ConfigureHealthChecks(configurations)
         .ConfigureCors()
-        .ConfigureRegisterJobs()
+        //.ConfigureFluentSchedulerJobs()
+        //.ConfigureHangFire(configurations)
         .AddControllers(options =>
         {
             options.EnableEndpointRouting = false;
@@ -66,13 +67,16 @@ try
         .UseHttpsRedirection()
         .UseDefaultFiles()
         .UseStaticFiles()
+        .UseCookiePolicy()
         .UseRouting()
+        .UseCors("CorsPolicy")
+        .UseResponseCaching()
         .UseAuthorization()
         .UseAuthentication()
-        .UseCors("CorsPolicy")
         .UseHealthChecks()
         .UseSwaggerConfigurations(configurations)
         .UseEndpoints();
+        //.UseHangfireDashboard();
 
     // Chamando a configuração do GraphQL.
     applicationbuilder.MapGraphQL();

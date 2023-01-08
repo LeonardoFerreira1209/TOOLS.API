@@ -1,4 +1,4 @@
-﻿namespace APPLICATION.DOMAIN.DTOS.RESPONSE;
+﻿namespace APPLICATION.DOMAIN.DTOS.RESPONSE.CEP;
 
 /// <summary>
 /// Objeto de retorno do CEP

@@ -1,4 +1,4 @@
-﻿namespace APPLICATION.DOMAIN.DTOS.REQUEST;
+﻿namespace APPLICATION.DOMAIN.DTOS.REQUEST.CEP;
 
 /// <summary>
 /// Request de Cep

@@ -1,7 +1,7 @@
 ﻿using APPLICATION.DOMAIN.ENTITY.CEP;
 using System.Linq.Expressions;
 
-namespace APPLICATION.DOMAIN.CONTRACTS.RESPOSITORIES.CEP;
+namespace APPLICATION.DOMAIN.CONTRACTS.REPOSITORY.CEP;
 
 /// <summary>
 /// Interface de Cep Repository

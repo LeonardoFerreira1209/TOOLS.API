@@ -1,4 +1,5 @@
-﻿using APPLICATION.DOMAIN.DTOS.RESPONSE;
+﻿using APPLICATION.DOMAIN.DTOS.RESPONSE.CEP;
+using APPLICATION.DOMAIN.DTOS.RESPONSE.UTILS;
 using APPLICATION.DOMAIN.ENTITY.CEP;
 using APPLICATION.ENUMS;
 using FluentValidation.Results;
@@ -77,13 +78,12 @@ public static class Extensions
 
         foreach (var erro in resultado.Errors)
         {
-            erros.Add(new DadosNotificacao((StatusCodes)Convert.ToInt32(erro.ErrorCode), erro.ErrorMessage));
+            erros.Add(new DadosNotificacao(erro.ErrorMessage));
         }
 
         return erros;
     }
 
-    #region CEP
     /// <summary>
     /// Converte um IEnumerable de CepEntity para uma lista de CepResponse.
     /// </summary>
@@ -107,6 +107,5 @@ public static class Extensions
 
         }).ToList());
     }
-    #endregion
 }
 
