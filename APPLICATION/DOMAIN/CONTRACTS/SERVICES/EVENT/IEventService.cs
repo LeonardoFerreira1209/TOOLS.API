@@ -20,4 +20,17 @@ public interface IEventService
     /// </summary>
     /// <returns></returns>
     Task<ApiResponse<object>> GetAllAsync();
+
+    /// <summary>
+    /// Método responsável por criar um tipo de evento.
+    /// </summary>
+    /// <param name="eventTypeCreateRequest"></param>
+    /// <returns></returns>
+    Task<ApiResponse<object>> CreateTypeAsync(EventTypeCreateRequest eventTypeCreateRequest);
+
+    /// <summary>
+    /// Método responsável por recuperar todos os tipos de evento.
+    /// </summary>
+    /// <returns></returns>
+    Task<ApiResponse<object>> GetAllTypesAsync();
 }

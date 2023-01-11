@@ -3,6 +3,11 @@
 public class EventCreateRequest
 {
     /// <summary>
+    /// Id do tipo de evento vinculado.
+    /// </summary>
+    public Guid EventTypeId { get; set; }
+
+    /// <summary>
     /// Nome da pessoal para qual o evento foi marcado.
     /// </summary>
     public string FirstName { get; set; }

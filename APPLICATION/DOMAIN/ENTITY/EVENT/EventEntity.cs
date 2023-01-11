@@ -1,12 +1,22 @@
 ﻿using APPLICATION.DOMAIN.ENTITY.BASE;
 
-namespace APPLICATION.DOMAIN.DTOS.RESPONSE.EVENT;
+namespace APPLICATION.DOMAIN.ENTITY.EVENT;
 
 /// <summary>
 /// Entidade de eventos.
 /// </summary>
 public class EventEntity : BaseEntity
 {
+    /// <summary>
+    /// Id do tipo de evento vinculado.
+    /// </summary>
+    public Guid EventTypeId { get; set; }
+
+    /// <summary>
+    /// Dados do tipo de evento vinculado.
+    /// </summary>
+    public virtual EventTypeEntity EventType { get; set; }
+
     /// <summary>
     /// Nome da pessoal para qual o evento foi marcado.
     /// </summary>

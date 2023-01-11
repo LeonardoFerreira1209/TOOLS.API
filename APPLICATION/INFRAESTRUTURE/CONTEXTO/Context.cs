@@ -1,6 +1,6 @@
 ﻿using APPLICATION.DOMAIN.DTOS.CONFIGURATION;
-using APPLICATION.DOMAIN.DTOS.RESPONSE.EVENT;
 using APPLICATION.DOMAIN.ENTITY.CEP;
+using APPLICATION.DOMAIN.ENTITY.EVENT;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -25,6 +25,7 @@ public class Context : DbContext
     /// </summary>
     public DbSet<CepEntity> Ceps { get; set; }
     public DbSet<EventEntity> Events { get; set; }
+    public DbSet<EventTypeEntity> EventTypes { get; set; }
 
     /// <summary>
     /// Métodos responsaveis por configurar o banco de dados.

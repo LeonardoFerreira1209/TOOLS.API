@@ -13,6 +13,16 @@ public class EventResponse
     public Guid Id { get; set; }
 
     /// <summary>
+    /// Id do tipo de evento vinculado.
+    /// </summary>
+    public Guid EventTypeId { get; set; }
+
+    /// <summary>
+    /// Response de evento type.
+    /// </summary>
+    public EventTypeResponse EventType { get; set; }
+
+    /// <summary>
     /// Nome da pessoal para qual o evento foi marcado.
     /// </summary>
     public string FirstName { get; set; }

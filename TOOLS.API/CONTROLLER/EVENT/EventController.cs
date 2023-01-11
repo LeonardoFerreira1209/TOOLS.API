@@ -2,7 +2,7 @@
 using APPLICATION.DOMAIN.DTOS.REQUEST.EVENT;
 using APPLICATION.DOMAIN.DTOS.RESPONSE.UTILS;
 using APPLICATION.DOMAIN.UTILS;
-using APPLICATION.DOMAIN.UTILS.AUTH;
+using APPLICATION.DOMAIN.UTILS.AUTH.CUSTOMAUTHORIZE.ATTRIBUTE;
 using APPLICATION.ENUMS;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +59,49 @@ public class EventController : ControllerBase
         using (LogContext.PushProperty("Controller", "EventController"))
         using (LogContext.PushProperty("Metodo", "GetEvents"))
         {
-            return await Tracker.Time(() => _eventService.GetAllAsync(), "Recuperar evemtos");
+            return await Tracker.Time(() => _eventService.GetAllAsync(), "Recuperar eventos");
+        }
+    }
+
+    /// <summary>
+    ///  Método responsavel por criar tipos de evento do calendário.
+    /// </summary>
+    /// <param name="eventTypeCreateRequest"></param>
+    /// <returns></returns>
+    [HttpPost("create/eventype")][CustomAuthorize(Claims.Event, "Post")][EnableCors("CorsPolicy")]
+    [SwaggerOperation(Summary = "Criar tipo de evento.", Description = " Método responsavel por criar tipos de evento do calendário.")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+    public async Task<ApiResponse<object>> CreateEventType(EventTypeCreateRequest eventTypeCreateRequest)
+    {
+        using (LogContext.PushProperty("Controller", "EventController"))
+        using (LogContext.PushProperty("Payload", JsonConvert.SerializeObject(eventTypeCreateRequest)))
+        using (LogContext.PushProperty("Metodo", "CreateEventType"))
+        {
+            return await Tracker.Time(() => _eventService.CreateTypeAsync(eventTypeCreateRequest), "Criar tipo de evento");
+        }
+    }
+
+    /// <summary>
+    /// Método responsavel por recuperar tipos de evento do calendário.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("getall/eventtypes")][CustomAuthorize(Claims.Event, "Get")][EnableCors("CorsPolicy")]
+    [SwaggerOperation(Summary = "Recuperar tipos de evento.", Description = "Método responsavel por recuperar tipos de evento do calendário.")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+    public async Task<ApiResponse<object>> GetEventTypes()
+    {
+        using (LogContext.PushProperty("Controller", "EventController"))
+        using (LogContext.PushProperty("Metodo", "GetEventTypes"))
+        {
+            return await Tracker.Time(() => _eventService.GetAllTypesAsync(), "Recuperar tipos de evento");
         }
     }
 }

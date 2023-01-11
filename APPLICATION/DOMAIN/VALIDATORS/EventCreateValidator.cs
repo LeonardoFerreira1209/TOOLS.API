@@ -12,15 +12,17 @@ public class EventCreateValidator : AbstractValidator<EventCreateRequest>
 {
     public EventCreateValidator()
     {
-        RuleFor(even => even.FirstName).NotEmpty().NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode());
+        RuleFor(even => even.EventTypeId).NotEmpty().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o tipo!").NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o tipo!");
 
-        RuleFor(even => even.LastName).NotEmpty().NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode());
+        RuleFor(even => even.FirstName).NotEmpty().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o nome!").NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o nome!");
 
-        RuleFor(even => even.Email).NotEmpty().NotNull().EmailAddress().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode());
+        RuleFor(even => even.LastName).NotEmpty().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o sobrenome!").NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o sobrenome!");
 
-        RuleFor(even => even.StartEvent).NotEmpty().NotNull().Must(StartDateValidade).WithErrorCode(ErrorCode.CamposObrigatorios.ToCode());
+        RuleFor(even => even.Email).NotEmpty().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o email!").NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o email!").EmailAddress().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha o email corretamente!");
 
-        RuleFor(even => even).NotEmpty().NotNull().Must(EndDateValidade).WithErrorCode(ErrorCode.CamposObrigatorios.ToCode());
+        RuleFor(even => even.StartEvent).NotEmpty().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha a data de inicio!").NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha a data de inicio!").Must(StartDateValidade).WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Data de inicio não pode ser menor que a atual!");
+
+        RuleFor(even => even).NotEmpty().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha a data de fim!").NotNull().WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Preencha a data de fim!").Must(EndDateValidade).WithErrorCode(ErrorCode.CamposObrigatorios.ToCode()).WithMessage("Data de fim deve ser maior que a de inicio!");
     }
 
     /// <summary>
