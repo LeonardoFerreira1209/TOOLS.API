@@ -1,6 +1,7 @@
 ﻿using APPLICATION.DOMAIN.CONTRACTS.REPOSITORY.EVENT;
 using APPLICATION.DOMAIN.DTOS.CONFIGURATION;
 using APPLICATION.DOMAIN.ENTITY.EVENT;
+using APPLICATION.DOMAIN.UTILS.GLOBAL;
 using APPLICATION.INFRAESTRUTURE.CONTEXTO;
 using APPLICATION.INFRAESTRUTURE.REPOSITORY.BASE;
 using Microsoft.EntityFrameworkCore;
@@ -89,7 +90,7 @@ public class EventRepository : BaseRepository, IEventRepository
             Log.Information($"[LOG INFORMATION] - Recuperando todos os eventos.\n");
 
             // return all events.
-            return await _context.Events.Include(even => even.EventType).ToListAsync();
+            return await _context.Events.Where(even => even.CreatedUserId.Equals(GlobalData.GlobalUser.Id)).Include(even => even.EventType).ToListAsync();
         }
         catch (Exception exception)
         {
@@ -144,7 +145,7 @@ public class EventRepository : BaseRepository, IEventRepository
             Log.Information($"[LOG INFORMATION] - Recuperando todos os tipos de evento.\n");
 
             // return all events.
-            return await _context.EventTypes.ToListAsync();
+            return await _context.EventTypes.Where(even => even.CreatedUserId.Equals(GlobalData.GlobalUser.Id)).ToListAsync();
         }
         catch (Exception exception)
         {
