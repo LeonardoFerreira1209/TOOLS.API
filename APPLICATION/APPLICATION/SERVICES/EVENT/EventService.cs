@@ -6,6 +6,9 @@ using APPLICATION.DOMAIN.DTOS.RESPONSE.UTILS;
 using APPLICATION.DOMAIN.UTILS.EXTENSIONS.EVENT;
 using APPLICATION.DOMAIN.VALIDATORS;
 using APPLICATION.ENUMS;
+using APPLICATION.INFRAESTRUTURE.SIGNALR.CLIENTS;
+using APPLICATION.INFRAESTRUTURE.SIGNALR.HUBS;
+using Microsoft.AspNetCore.SignalR;
 using Serilog;
 
 namespace APPLICATION.APPLICATION.SERVICES.EVENT;
@@ -16,9 +19,14 @@ namespace APPLICATION.APPLICATION.SERVICES.EVENT;
 public class EventService : IEventService
 {
     private readonly IEventRepository _eventRepository;
-    public EventService(IEventRepository eventRepository)
+
+    private readonly IHubContext<HubNotify, INotifyClient> _hubContext;
+
+    public EventService(IEventRepository eventRepository, IHubContext<HubNotify, INotifyClient> hubContext)
     {
         _eventRepository = eventRepository;
+
+        _hubContext = hubContext;
     }
 
     /// <summary>
@@ -43,6 +51,12 @@ public class EventService : IEventService
 
             // create event.
             var eventEntity = await _eventRepository.CreateAsync(eventCreateRequest.ToEntity());
+
+            await _hubContext.Clients.All.ReceiveMessage(new INFRAESTRUTURE.SIGNALR.DTOS.Notify("Teste", "Testando")
+            {
+                Id = new Random().Next(1, 10000),
+                Date = DateTime.Now.ToString()
+            });
 
             Log.Information($"[LOG INFORMATION] - Evento Id {eventEntity.Id} criado com sucesso.\n");
 

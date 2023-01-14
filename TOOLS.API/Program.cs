@@ -2,8 +2,10 @@ using APPLICATION.APPLICATION.CONFIGURATIONS;
 using APPLICATION.DOMAIN.DTOS.CONFIGURATION;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Serilog;
 using System;
 
@@ -14,6 +16,10 @@ try
 
     // Pegando configurações do appsettings.json.
     var configurations = builder.Configuration;
+
+    // Pega o appsettings baseado no ambiente em execução.
+    configurations
+         .SetBasePath(builder.Environment.ContentRootPath).AddJsonFile("appsettings.json", false, true).AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true).AddEnvironmentVariables();
 
     builder.Services.AddSignalR();
 
@@ -27,7 +33,6 @@ try
         .AddOptions()
         .ConfigureLanguage()
         .ConfigureContexto(configurations)
-        .ConfigureAuthorization(configurations)
         .ConfigureAuthentication(configurations)
         .ConfigureApllicationCookie()
         .ConfigureSwagger(configurations)
@@ -57,7 +62,7 @@ try
             options.Filters.Add(new ProducesAttribute("application/json"));
 
         })
-        .AddNewtonsoftJson();
+        .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
     // Preparando WebApplication Build.
     var applicationbuilder = builder.Build();
@@ -71,7 +76,6 @@ try
         .UseRouting()
         .UseCors("CorsPolicy")
         .UseResponseCaching()
-        .UseAuthorization()
         .UseAuthentication()
         .UseHealthChecks()
         .UseSwaggerConfigurations(configurations)

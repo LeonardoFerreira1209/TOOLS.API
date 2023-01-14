@@ -18,6 +18,7 @@ using APPLICATION.INFRAESTRUTURE.JOBS.FACTORY.HANGFIRE;
 using APPLICATION.INFRAESTRUTURE.JOBS.INTERFACES.BASE;
 using APPLICATION.INFRAESTRUTURE.REPOSITORY.CEP;
 using APPLICATION.INFRAESTRUTURE.REPOSITORY.EVENT;
+using APPLICATION.INFRAESTRUTURE.SIGNALR.CLIENTS;
 using APPLICATION.INFRAESTRUTURE.SIGNALR.HUBS;
 using Hangfire;
 using Microsoft.ApplicationInsights;
@@ -28,6 +29,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -165,23 +167,6 @@ public static class ExtensionsConfigurations
                 }
             };
         });
-
-        return services;
-    }
-
-    /// <summary>
-    /// Configuração da authorização do sistema.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configurations"></param>
-    /// <returns></returns>
-    public static IServiceCollection ConfigureAuthorization(this IServiceCollection services, IConfiguration configurations)
-    {
-        services
-             .AddAuthorization(options =>
-             {
-                 options.AddPolicy("user", policy => policy.RequireClaim("User", "Get"));
-             });
 
         return services;
     }
@@ -339,7 +324,7 @@ public static class ExtensionsConfigurations
             .AddTransient<IEventService, EventService>()
             // Facades
             .AddSingleton<ICepFacade, CepFacade>()
-            //Repositories
+            // Repositories
             .AddScoped<ICepRepository, CepRepository>()
             .AddScoped<IEventRepository, EventRepository>();
 
