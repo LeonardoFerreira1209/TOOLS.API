@@ -107,39 +107,4 @@ public class EventController : ControllerBase
             return await Tracker.Time(() => _eventService.GetAllTypesAsync(), "Recuperar tipos de evento");
         }
     }
-
-     /// <summary>
-    /// Método responsavel por recuperar tipos de evento do calendário.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("teste")][EnableCors("CorsPolicy")]
-    [SwaggerOperation(Summary = "Recuperar tipos de evento.", Description = "Método responsavel por recuperar tipos de evento do calendário.")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-    public async Task<string> teste(string value)
-    {
-        var apikey = "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";
-
-        var _httpClient = new HttpClient() { BaseAddress = new Uri("https://api.openai.com/v1/completions") } ;
-
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apikey}");
-        _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-
-        var model = "text-davinci-002";
-
-        var content = new StringContent(
-            $"{{\"model\": \"{model}\", \"prompt\": \"{value}\"}}",
-            Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync(_httpClient.BaseAddress.ToString(), content);
-
-        response.EnsureSuccessStatusCode();
-
-        var responseString = await response.Content.ReadAsStringAsync();
-
-        return responseString;
-    }
 }
