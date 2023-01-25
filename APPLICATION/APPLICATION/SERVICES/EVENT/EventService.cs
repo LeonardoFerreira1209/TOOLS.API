@@ -52,11 +52,11 @@ public class EventService : IEventService
             // create event.
             var eventEntity = await _eventRepository.CreateAsync(eventCreateRequest.ToEntity());
 
-            await _hubContext.Clients.All.ReceiveMessage(new INFRAESTRUTURE.SIGNALR.DTOS.Notify("Teste", "Testando")
-            {
-                Id = new Random().Next(1, 10000),
-                Date = DateTime.Now.ToString()
-            });
+            //await _hubContext.Clients.All.ReceiveMessage(new INFRAESTRUTURE.SIGNALR.DTOS.Notify("Teste", "Testando")
+            //{
+            //    Id = new Random().Next(1, 10000),
+            //    Date = DateTime.Now.ToString()
+            //});
 
             Log.Information($"[LOG INFORMATION] - Evento Id {eventEntity.Id} criado com sucesso.\n");
 
@@ -87,7 +87,7 @@ public class EventService : IEventService
 
             Log.Information($"[LOG INFORMATION] - Eventos recuperados com sucesso.\n");
 
-            return new ApiResponse<object>(true, StatusCodes.SuccessCreated, eventsEntity.Select(even => even.ToResponse()), new List<DadosNotificacao> { new DadosNotificacao("Eventos recuperados com sucesso.\n") });
+            return new ApiResponse<object>(true, StatusCodes.SuccessOK, eventsEntity.Select(even => even.ToResponse()), new List<DadosNotificacao> { new DadosNotificacao("Eventos recuperados com sucesso.\n") });
         }
         catch (Exception exception)
         {
@@ -149,7 +149,7 @@ public class EventService : IEventService
 
             Log.Information($"[LOG INFORMATION] - Tipos de evento recuperados com sucesso.\n");
 
-            return new ApiResponse<object>(true, StatusCodes.SuccessCreated, eventTypesEntity.Select(eventype => eventype.ToResponse()), new List<DadosNotificacao> { new DadosNotificacao("Tipos de evento recuperados com sucesso.\n") });
+            return new ApiResponse<object>(true, StatusCodes.SuccessOK, eventTypesEntity.Select(eventype => eventype.ToResponse()), new List<DadosNotificacao> { new DadosNotificacao("Tipos de evento recuperados com sucesso.\n") });
         }
         catch (Exception exception)
         {

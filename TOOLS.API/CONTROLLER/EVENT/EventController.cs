@@ -71,7 +71,7 @@ public class EventController : ControllerBase
     /// </summary>
     /// <param name="eventTypeCreateRequest"></param>
     /// <returns></returns>
-    [HttpPost("create/eventype")][CustomAuthorize(Claims.Event, "Post")][EnableCors("CorsPolicy")]
+    [HttpPost("create/eventtype")][CustomAuthorize(Claims.Event, "Post")][EnableCors("CorsPolicy")]
     [SwaggerOperation(Summary = "Criar tipo de evento.", Description = " Método responsavel por criar tipos de evento do calendário.")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
