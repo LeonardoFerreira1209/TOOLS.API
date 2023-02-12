@@ -4,7 +4,7 @@ using APPLICATION.DOMAIN.DTOS.RESPONSE.CEP;
 using APPLICATION.DOMAIN.UTILS;
 using APPLICATION.DOMAIN.VALIDATORS;
 using APPLICATION.INFRAESTRUTURE.GRAPHQL.DATALOADER;
-using HotChocolate.AspNetCore.Authorization;
+using HotChocolate.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
